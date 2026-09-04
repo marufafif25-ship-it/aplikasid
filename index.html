@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aplikasi id - Software Original untuk Kerja & Bisnis | Link Google Drive Otomatis</title>
+  <meta name="description"
+    content="Toko software original terlengkap. Pembayaran otomatis dengan pengiriman link Google Drive langsung ke email Anda setelah bayar. Garansi selamanya & full version.">
+  <link rel="icon" type="image/png" href="assets/logos/favicon1.png" />
+
+  <!-- Google Fonts & FontAwesome Icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <!-- CSS Design System -->
+  <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+
+  <!-- Navbar -->
+  <div class="navbar-wrapper">
+    <div class="container">
+      <nav class="navbar">
+        <div class="brand-logo" onclick="app.scrollToSection('home')">
+          <div class="logo-icon"><img src="assets/logos/aplikasid-hitamputih.png" alt="aplikasi.id" width="60px"
+              height="60px"></div>
+          <div class="logo-text">
+            <span class="logo-title">Aplikasi.id</span>
+            <span class="logo-tag">PUSAT SOFTWARE TERPERCAYA</span>
+          </div>
+        </div>
+
+        <div class="nav-menu">
+          <a class="nav-link active" onclick="app.scrollToSection('home')">Beranda</a>
+          <a class="nav-link" onclick="app.scrollToSection('produk')">Produk</a>
+          <a class="nav-link" onclick="app.scrollToSection('bantuan')">Bantuan</a>
+          <a class="nav-link" onclick="app.scrollToSection('garansi')">Garansi</a>
+          <a class="nav-link" onclick="app.openModal('requestModal')">Request</a>
+          <a class="nav-link" onclick="app.openModal('checkInvoiceModal')">Cek Invoice</a>
+        </div>
+
+        <div class="nav-actions">
+          <button class="action-btn" title="Cek Invoice / Pesanan" onclick="app.openModal('checkInvoiceModal')">
+            <i class="fa-solid fa-receipt"></i>
+          </button>
+          <button class="action-btn" title="Keranjang Belanja" onclick="app.openModal('cartModal')">
+            <i class="fa-solid fa-cart-shopping"></i>
+            <span class="cart-badge" id="cartBadgeCount">0</span>
+          </button>
+        </div>
+      </nav>
+    </div>
+  </div>
+
+  <main>
+    <!-- Hero Banner (Persis Screenshot Competitor) -->
+    <section class="hero-section" id="home">
+      <div class="container">
+        <div class="hero-banner">
+          <div class="hero-content">
+            <div class="hero-badge">
+              <i class="fa-solid fa-layer-group"></i> 238+ Software Aktif
+            </div>
+            <h1 class="hero-title">Software Original untuk Kerja & Bisnis</h1>
+            <p class="hero-subtitle">
+              Solusi software terpercaya untuk kebutuhan kerja, desain, editing, dan bisnis dengan proses
+              <strong>aktivasi cepat</strong> serta <strong>pengiriman link Google Drive otomatis ke email</strong>
+              setelah bayar.
+            </p>
+
+            <div class="hero-cta">
+              <button class="btn-primary" onclick="app.scrollToSection('produk')">
+                Mulai Belanja <i class="fa-solid fa-arrow-right"></i>
+              </button>
+              <button class="btn-secondary" onclick="app.openModal('checkInvoiceModal')">
+                <i class="fa-solid fa-file-invoice"></i> Cek Pesanan
+              </button>
+            </div>
+
+            <div class="trust-badges">
+              <div class="trust-item">
+                <i class="fa-solid fa-circle-check"></i> Full Version
+              </div>
+              <div class="trust-item">
+                <i class="fa-solid fa-bolt"></i> Aktivasi Cepat
+              </div>
+              <div class="trust-item">
+                <i class="fa-solid fa-headset"></i> Support Pelanggan
+              </div>
+            </div>
+          </div>
+
+          <!-- Category Quick Access (Right side of Banner) -->
+          <div class="category-quick-grid">
+            <div class="quick-cat-card" onclick="app.filterByCategory('Office')">
+              <div class="quick-cat-icon"><i class="fa-solid fa-briefcase"></i></div>
+              <div class="quick-cat-info">
+                <h4>Office</h4>
+                <p>Windows • Office</p>
+              </div>
+            </div>
+            <div class="quick-cat-card" onclick="app.filterByCategory('Design')">
+              <div class="quick-cat-icon"><i class="fa-solid fa-palette"></i></div>
+              <div class="quick-cat-info">
+                <h4>Design</h4>
+                <p>Adobe • Corel</p>
+              </div>
+            </div>
+            <div class="quick-cat-card" onclick="app.filterByCategory('Engineering')">
+              <div class="quick-cat-icon"><i class="fa-solid fa-compass-drafting"></i></div>
+              <div class="quick-cat-info">
+                <h4>Engineering</h4>
+                <p>AutoCAD • SketchUp</p>
+              </div>
+            </div>
+            <div class="quick-cat-card" onclick="app.filterByCategory('Utility')">
+              <div class="quick-cat-icon"><i class="fa-solid fa-wrench"></i></div>
+              <div class="quick-cat-info">
+                <h4>Utility</h4>
+                <p>IDM • Recovery</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Filter & Search Bar Section -->
+    <section class="toolbar-section" id="produk">
+      <div class="container">
+        <div class="toolbar-card">
+          <div class="search-box">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input type="text" id="searchInput" class="search-input"
+              placeholder="Cari software original (contoh: Photoshop, AutoCAD, Corel...)" oninput="app.handleSearch()">
+          </div>
+
+          <div class="filter-group">
+            <select id="categoryFilter" class="filter-select" onchange="app.handleFilterChange()">
+              <option value="all">Semua Kategori</option>
+              <option value="Design">Design & Grafis</option>
+              <option value="Engineering">Engineering & 3D</option>
+              <option value="Video">Video & Animation</option>
+              <option value="Office">Office & Produksi</option>
+              <option value="Utility">System & Utility</option>
+            </select>
+
+            <select id="osFilter" class="filter-select" onchange="app.handleFilterChange()">
+              <option value="all">Semua Sistem (OS)</option>
+              <option value="Win & Mac">Windows & Mac</option>
+              <option value="Windows">Windows Only</option>
+              <option value="Mac">Mac OS Only</option>
+            </select>
+
+            <select id="sortFilter" class="filter-select" onchange="app.handleFilterChange()">
+              <option value="newest">Terbaru</option>
+              <option value="popular">Terpopuler</option>
+              <option value="price-low">Harga Termurah</option>
+              <option value="price-high">Harga Tertinggi</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Product Grid Section -->
+    <section class="products-section">
+      <div class="container">
+        <div class="section-header">
+          <h2 class="section-title">
+            Katalog Software Premium <span class="product-count-badge" id="productCountBadge">0 Software</span>
+          </h2>
+        </div>
+
+        <!-- Products Grid Container -->
+        <div class="products-grid" id="productsGrid">
+          <!-- Dynamic product cards render here -->
+        </div>
+      </div>
+    </section>
+
+    <!-- Information & Guarantee Section -->
+    <section class="info-section" id="garansi">
+      <div class="container">
+        <div class="info-grid">
+          <div class="info-card">
+            <div class="info-icon"><i class="fa-solid fa-bolt"></i></div>
+            <h3>Otomatisasi Kirim Email</h3>
+            <p>Setelah status pembayaran LUNAS, link Google Drive full version langsung terkirim otomatis ke email Anda
+              tanpa menunggu admin.</p>
+          </div>
+          <div class="info-card">
+            <div class="info-icon"><i class="fa-solid fa-shield-halved"></i></div>
+            <h3>Garansi Selamanya</h3>
+            <p>Garansi permanen update & penggantian link jika ada masalah instalasi atau file corrupt. Support tim
+              teknis siap membantu.</p>
+          </div>
+          <div class="info-card">
+            <div class="info-icon"><i class="fa-solid fa-cloud-arrow-down"></i></div>
+            <h3>Google Drive Speed High</h3>
+            <p>Direct link Google Drive kencang, aman dari virus, full version permanent, serta dilengkapi panduan
+              langkah demi langkah mudah.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-content">
+        <div>
+          <strong style="color:#fff;">Aplikasi.id LICENSED SOFTWARE</strong> &copy; 2026. Hak Cipta Dilindungi.
+        </div>
+        <div style="display:flex; gap:16px;">
+          <a href="#" onclick="app.openModal('checkInvoiceModal'); return false;">Cek Invoice</a>
+          <a href="#" onclick="app.openModal('requestModal'); return false;">Request Software</a>
+          <a href="#" onclick="app.openModal('adminModal'); return false;" style="color:#3b82f6;"><i
+              class="fa-solid fa-user-gear"></i> Seller Admin</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ==================== MODALS SYSTEM ==================== -->
+
+  <!-- Modal Product Detail -->
+  <div class="modal-overlay" id="productModal">
+    <div class="modal-container">
+      <div class="modal-header">
+        <h3 class="modal-title" id="modalProductTitle">Detail Software</h3>
+        <button class="btn-close-modal" onclick="app.closeModal('productModal')"><i
+            class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="modal-body" id="modalProductBody">
+        <!-- Content injected dynamically -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Checkout / Order Form -->
+  <div class="modal-overlay" id="checkoutModal">
+    <div class="modal-container">
+      <div class="modal-header">
+        <h3 class="modal-title"><i class="fa-solid fa-cart-shopping" style="color:#3b82f6;"></i> Checkout Pembelian</h3>
+        <button class="btn-close-modal" onclick="app.closeModal('checkoutModal')"><i
+            class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="modal-body">
+        <div id="checkoutSummaryBox"
+          style="background:#090e1a; padding:16px; border-radius:12px; border:1px solid var(--border-color); margin-bottom:20px;">
+          <!-- Item summary injected dynamically -->
+        </div>
+
+        <form id="checkoutForm" onsubmit="app.processPayment(event)">
+          <div class="form-group">
+            <label class="form-label">Nama Lengkap Pembeli *</label>
+            <input type="text" id="buyerName" class="form-input" placeholder="Masukkan nama Anda..." required>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Alamat Email Pembeli (Sangat Penting) *</label>
+            <input type="email" id="buyerEmail" class="form-input" placeholder="contoh: pembeli@gmail.com" required>
+            <small style="color:#94a3b8; font-size:12px; display:block; margin-top:4px;">
+              <i class="fa-solid fa-circle-info" style="color:#3b82f6;"></i> Link Google Drive akan terkirim secara
+              OTOMATIS ke email ini setelah bayar.
+            </small>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Nomor WhatsApp *</label>
+            <input type="tel" id="buyerPhone" class="form-input" placeholder="081234567890" required>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Pilih Metode Pembayaran *</label>
+            <div class="payment-methods-grid">
+              <div class="payment-option selected" onclick="app.selectPaymentMethod(this, 'QRIS Instant')">
+                <i class="fa-solid fa-qrcode"></i>
+                <span>QRIS Instant</span>
+              </div>
+              <div class="payment-option" onclick="app.selectPaymentMethod(this, 'BCA Virtual Account')">
+                <i class="fa-solid fa-building-columns"></i>
+                <span>BCA VA</span>
+              </div>
+              <div class="payment-option" onclick="app.selectPaymentMethod(this, 'Mandiri Virtual Account')">
+                <i class="fa-solid fa-building-columns"></i>
+                <span>Mandiri VA</span>
+              </div>
+              <div class="payment-option" onclick="app.selectPaymentMethod(this, 'GoPay / OVO / Dana')">
+                <i class="fa-solid fa-wallet"></i>
+                <span>E-Wallet</span>
+              </div>
+            </div>
+          </div>
+
+          <button type="submit" class="btn-primary"
+            style="width:100%; justify-content:center; padding:14px; font-size:16px; margin-top:10px;">
+            <i class="fa-solid fa-lock"></i> Konfirmasi & Bayar Sekarang
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Payment Processing / QRIS Display -->
+  <div class="modal-overlay" id="paymentProcessModal">
+    <div class="modal-container" style="max-width:500px; text-align:center;">
+      <div class="modal-header">
+        <h3 class="modal-title"><i class="fa-solid fa-qrcode" style="color:#10b981;"></i> Pembayaran Instan</h3>
+        <button class="btn-close-modal" onclick="app.closeModal('paymentProcessModal')"><i
+            class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="modal-body" id="paymentProcessBody">
+        <!-- Render QRIS & Payment instruction dynamically -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Simulated Automated Email Delivery (The Key Core Feature!) -->
+  <div class="modal-overlay" id="emailDeliveryModal">
+    <div class="modal-container" style="max-width:680px;">
+      <div class="modal-header" style="background:#090e1a; border-bottom:1px solid rgba(16,185,129,0.3);">
+        <h3 class="modal-title" style="color:#34d399;">
+          <i class="fa-solid fa-paper-plane"></i> Link Google Drive Otomatis Dikirim!
+        </h3>
+        <button class="btn-close-modal" onclick="app.closeModal('emailDeliveryModal')"><i
+            class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="modal-body" style="padding:0;">
+        <div class="email-sim-box">
+          <div class="email-sim-topbar">
+            <div class="email-sim-tag"><i class="fa-solid fa-envelope-circle-check"></i> INBOX SIMULASI REAL-TIME</div>
+            <div style="font-size:12px; color:#94a3b8;" id="emailSimTime">Baru Saja</div>
+          </div>
+          <div class="email-sim-body" id="emailSimContent">
+            <!-- Simulated Automated Email Body injected here -->
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Check Invoice -->
+  <div class="modal-overlay" id="checkInvoiceModal">
+    <div class="modal-container">
+      <div class="modal-header">
+        <h3 class="modal-title"><i class="fa-solid fa-magnifying-glass" style="color:#3b82f6;"></i> Cek Invoice & Akses
+          Drive</h3>
+        <button class="btn-close-modal" onclick="app.closeModal('checkInvoiceModal')"><i
+            class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="modal-body">
+        <p style="color:#94a3b8; font-size:14px; margin-bottom:20px;">
+          Masukkan <strong>Kode Invoice</strong> (contoh: <code>ARK-84920</code>) atau <strong>Email Pembeli</strong>
+          Anda untuk mengunduh kembali software yang pernah Anda beli.
+        </p>
+
+        <form onsubmit="app.lookupInvoice(event)" style="display:flex; gap:10px; margin-bottom:24px;">
+          <input type="text" id="invoiceQueryInput" class="form-input"
+            placeholder="Masukkan Kode Invoice / Email Anda..." required>
+          <button type="submit" class="btn-primary" style="white-space:nowrap;">
+            <i class="fa-solid fa-search"></i> Cari
+          </button>
+        </form>
+
+        <div id="invoiceResultBox"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Request Software -->
+  <div class="modal-overlay" id="requestModal">
+    <div class="modal-container">
+      <div class="modal-header">
+        <h3 class="modal-title"><i class="fa-solid fa-hand-holding-heart" style="color:#f59e0b;"></i> Request Software
+        </h3>
+        <button class="btn-close-modal" onclick="app.closeModal('requestModal')"><i
+            class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="modal-body">
+        <p style="color:#94a3b8; font-size:14px; margin-bottom:20px;">
+          Software yang Anda cari tidak ada di katalog? Kirimkan request Anda, tim kami akan segera menyediakannya!
+        </p>
+        <form onsubmit="app.submitRequest(event)">
+          <div class="form-group">
+            <label class="form-label">Nama Software & Versi yang Diminta *</label>
+            <input type="text" id="reqSoftName" class="form-input" placeholder="contoh: Blender 4.2 Pro / Lumion 2024"
+              required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Sistem Operasi (OS) *</label>
+            <select id="reqSoftOS" class="form-select">
+              <option value="Windows">Windows Only</option>
+              <option value="Mac">Mac OS Only</option>
+              <option value="Win & Mac">Dual OS (Win & Mac)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Email / Nomor WhatsApp Anda *</label>
+            <input type="text" id="reqContact" class="form-input"
+              placeholder="Untuk mengabari ketika software tersedia..." required>
+          </div>
+          <button type="submit" class="btn-primary" style="width:100%; justify-content:center;">
+            <i class="fa-solid fa-paper-plane"></i> Kirim Request Software
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Cart Drawer -->
+  <div class="modal-overlay" id="cartModal">
+    <div class="modal-container">
+      <div class="modal-header">
+        <h3 class="modal-title"><i class="fa-solid fa-cart-shopping" style="color:#3b82f6;"></i> Keranjang Belanja</h3>
+        <button class="btn-close-modal" onclick="app.closeModal('cartModal')"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="modal-body">
+        <div id="cartItemsList" style="margin-bottom:20px;">
+          <!-- Cart items injected dynamically -->
+        </div>
+        <div id="cartFooter"
+          style="border-top:1px solid var(--border-color); padding-top:16px; display:flex; align-items:center; justify-content:space-between;">
+          <div>
+            <span style="font-size:13px; color:#94a3b8;">Total Biaya:</span>
+            <div style="font-family:'Outfit',sans-serif; font-size:22px; font-weight:800; color:#fff;"
+              id="cartTotalPrice">Rp 0</div>
+          </div>
+          <button class="btn-primary" onclick="app.checkoutFromCart()">
+            Lanjut Pembayaran <i class="fa-solid fa-arrow-right"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Seller Admin Panel -->
+  <div class="modal-overlay" id="adminModal">
+    <div class="modal-container" style="max-width:800px;">
+      <div class="modal-header">
+        <h3 class="modal-title"><i class="fa-solid fa-user-gear" style="color:#3b82f6;"></i> Seller Dashboard (Kelola
+          Link Google Drive & Pembelian)</h3>
+        <button class="btn-close-modal" onclick="app.closeModal('adminModal')"><i
+            class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="modal-body">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+          <h4 style="font-size:16px;">Katalog Software, Link Google Drive & Link Pembelian</h4>
+          <button class="btn-secondary" style="font-size:12px; padding:6px 14px;" onclick="app.resetDataToDefault()">
+            <i class="fa-solid fa-rotate"></i> Reset Data Bawaan
+          </button>
+        </div>
+
+        <div id="adminProductListTable"
+          style="max-height:400px; overflow-y:auto; border:1px solid var(--border-color); border-radius:12px;">
+          <!-- Table injected dynamically -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notifications Container -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- Application Logic JS -->
+  <script src="app.js"></script>
+</body>
+
+</html>
