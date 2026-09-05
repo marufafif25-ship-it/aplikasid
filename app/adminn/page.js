@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { products as defaultProducts } from "../../lib/products";
+import { deleteProductFromSheet, fetchProductsFromSheet, saveProductToSheet } from "../../lib/products-api";
 
 const STORAGE_KEY = "aplikasiid_products";
 const PAGE_SIZE = 15;
@@ -46,6 +47,12 @@ export default function AdminPage() {
 
   useEffect(() => {
     setProductList(readProducts());
+    fetchProductsFromSheet()
+      .then((sheetProducts) => {
+        setProductList(sheetProducts);
+        window.localStorage.setItem(STORAGE_KEY, JSON.stringify(sheetProducts));
+      })
+      .catch(() => {});
   }, []);
 
   const filteredProducts = useMemo(() => {
@@ -77,7 +84,7 @@ export default function AdminPage() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  const saveProduct = (event) => {
+  const saveProduct = async (event) => {
     event.preventDefault();
     const product = {
       ...form,
@@ -93,14 +100,26 @@ export default function AdminPage() {
     };
     if (!product.title) return;
     const nextProducts = editingId ? productList.map((item) => item.id === editingId ? product : item) : [product, ...productList];
+    try {
+      await saveProductToSheet(product);
+    } catch {
+      setNotice("Gagal menyimpan ke spreadsheet.");
+      return;
+    }
     persist(nextProducts, editingId ? "Produk berhasil diperbarui." : "Produk baru berhasil ditambahkan.");
     setEditingId(null);
     setForm(emptyProduct);
     setPage(1);
   };
 
-  const removeProduct = (id) => {
+  const removeProduct = async (id) => {
     if (!window.confirm("Hapus produk ini dari katalog?")) return;
+    try {
+      await deleteProductFromSheet(id);
+    } catch {
+      setNotice("Gagal menghapus dari spreadsheet.");
+      return;
+    }
     persist(productList.filter((product) => product.id !== id), "Produk berhasil dihapus.");
     if (visibleProducts.length === 1 && page > 1) setPage(page - 1);
   };

@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { products } from "../lib/products";
+import { fetchProductsFromSheet } from "../lib/products-api";
 
 const formatRp = (amount) => new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", maximumFractionDigits: 0 }).format(amount);
 
@@ -22,6 +23,13 @@ export default function HomePage() {
     if (savedCart) setCart(JSON.parse(savedCart));
     const savedProducts = window.localStorage.getItem("aplikasiid_products");
     if (savedProducts) setProductList(JSON.parse(savedProducts));
+
+    fetchProductsFromSheet()
+      .then((sheetProducts) => {
+        setProductList(sheetProducts);
+        window.localStorage.setItem("aplikasiid_products", JSON.stringify(sheetProducts));
+      })
+      .catch(() => {});
 
     const syncProducts = (event) => {
       if (event.key === "aplikasiid_products" && event.newValue) setProductList(JSON.parse(event.newValue));
