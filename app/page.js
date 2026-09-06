@@ -26,7 +26,7 @@ const defaultFooterSettings = {
   email: ""
 };
 const defaultFaq = [
-  { id: "order", question: "Cara order", answer: "Pilih software, klik Beli Sekarang, lalu ikuti halaman pembayaran yang terbuka.", keywords: "order,beli,pesan" },
+  { id: "order", question: "Cara order", answer: "Pilih software, klik Beli Sekarang, lalu ikuti halaman pembayaran yang terbuka, setelah bayar akan otomatis menerima email berisi link gdrive. Buka emailnya di laptop.", keywords: "order,beli,pesan,cara beli" },
   { id: "warranty", question: "Garansi", answer: "Produk memiliki garansi sesuai keterangan pada katalog. Hubungi CS jika ada kendala instalasi.", keywords: "garansi,aman" },
   { id: "invoice", question: "Cek pesanan", answer: "Setelah pembayaran selesai, Anda akan menerima email konfirmasi dengan detail pesanan. Pengirim email dari lynk.id, buka email tersebut di laptop lalu klik link gdrive - lalu ikutin video tutorial cara installnya.", keywords: "invoice,pesanan" }
 ];
@@ -152,17 +152,17 @@ export default function HomePage() {
   };
 
   const scrollTo = (id) => document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
-
+//cara ubah template jawaban tiap cs//
   const getChatReply = (message) => {
     const text = message.toLowerCase();
     const matchedFaq = faqItems.find((item) => String(item.keywords || "").toLowerCase().split(",").some((keyword) => keyword.trim() && text.includes(keyword.trim())));
     if (matchedFaq) return matchedFaq.answer;
     if (text.includes("order") || text.includes("beli") || text.includes("pesan")) return "Pilih software, klik Beli Sekarang, lalu ikuti halaman pembayaran yang terbuka.";
-    if (text.includes("bayar") || text.includes("pembayaran")) return "Pembayaran dilakukan melalui link checkout pada produk. Setelah pembayaran selesai, ikuti instruksi pengiriman akses.";
+    if (text.includes("bayar") || text.includes("pembayaran")) return "Pembayaran dilakukan melalui link checkout pada produk. Setelah pembayaran selesai, menerima email berisi link gdrive. Buka emailnya di laptop kak.";
     if (text.includes("garansi") || text.includes("aman")) return "Setiap produk memiliki informasi garansi di katalog. Tim CS juga siap membantu jika ada kendala instalasi.";
-    if (text.includes("versi") || text.includes("software")) return "Anda bisa mencari software lewat kolom pencarian atau memilih kategori produk di katalog.";
+    if (text.includes("versi") || text.includes("software")) return "Kakanya bisa nyari software lewat kolom pencarian atau memilih kategori produk di katalog. Atau kalau mau lebih lengkapnya bisa ke link: s.id/aplikasid";
     if (text.includes("invoice") || text.includes("pesanan")) return "Setelah pembayaran selesai, Anda akan menerima email konfirmasi dengan detail pesanan. Pengirim email dari lynk.id, buka email tersebut di laptop lalu klik link gdrive - lalu ikutin video tutorial cara installnya.";
-    return "Saya belum menemukan jawabannya. Silakan hubungi CS melalui WhatsApp agar dibantu langsung.";
+    return "Saya belum menemukan jawabannya. Silakan hubungi CS melalui WhatsApp agar dibantu langsung yah kak.";
   };
 
   const sendChatMessage = (message = chatInput) => {
