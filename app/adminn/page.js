@@ -2,10 +2,31 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { products as defaultProducts } from "../../lib/products";
-import { authenticateAdmin, deleteProductFromSheet, fetchProductsFromSheet, saveProductToSheet } from "../../lib/products-api";
+import { authenticateAdmin, deleteProductFromSheet, fetchFooterSettings, fetchHomepageSettings, fetchProductsFromSheet, saveFooterSettings, saveHomepageSettings, saveProductToSheet } from "../../lib/products-api";
 
 const STORAGE_KEY = "aplikasiid_products";
 const PAGE_SIZE = 15;
+const defaultHeroSettings = {
+  badge: "238+ Software Aktif",
+  title: "Software Original",
+  titleLineTwo: "untuk Tugas & Kerja",
+  description: "Solusi software terpercaya untuk kebutuhan kerja, desain, editing, dan bisnis dengan proses aktivasi cepat serta bantuan pelanggan.",
+  primaryLabel: "Mulai Belanja",
+  primaryTarget: "produk",
+  secondaryLabel: "Cek Pesanan",
+  secondaryTarget: "bantuan",
+  trustOne: "Full Version",
+  trustTwo: "Aktivasi Cepat",
+  trustThree: "Support Pelanggan"
+};
+const defaultFooterSettings = {
+  brand: "Aplikasi.id",
+  description: "Pusat software terpercaya untuk kebutuhan kerja dan bisnis.",
+  copyright: "© 2026. Semua hak dilindungi.",
+  whatsapp: "",
+  instagram: "",
+  email: ""
+};
 
 const emptyProduct = {
   id: "",
@@ -61,6 +82,8 @@ export default function AdminPage() {
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
   const [notice, setNotice] = useState("");
+  const [heroSettings, setHeroSettings] = useState(defaultHeroSettings);
+  const [footerSettings, setFooterSettings] = useState(defaultFooterSettings);
 
   useEffect(() => {
     try {
@@ -69,6 +92,28 @@ export default function AdminPage() {
     } catch {}
     setAuthReady(true);
     setProductList(withOrder(readProducts()));
+    const savedHero = window.localStorage.getItem("aplikasiid_hero");
+    if (savedHero) setHeroSettings({ ...defaultHeroSettings, ...JSON.parse(savedHero) });
+    const savedFooter = window.localStorage.getItem("aplikasiid_footer");
+    if (savedFooter) setFooterSettings({ ...defaultFooterSettings, ...JSON.parse(savedFooter) });
+    fetchHomepageSettings()
+      .then((settings) => {
+        if (settings && !Array.isArray(settings)) {
+          const nextHero = { ...defaultHeroSettings, ...settings };
+          setHeroSettings(nextHero);
+          window.localStorage.setItem("aplikasiid_hero", JSON.stringify(nextHero));
+        }
+      })
+      .catch(() => {});
+    fetchFooterSettings()
+      .then((settings) => {
+        if (settings && !Array.isArray(settings)) {
+          const nextFooter = { ...defaultFooterSettings, ...settings };
+          setFooterSettings(nextFooter);
+          window.localStorage.setItem("aplikasiid_footer", JSON.stringify(nextFooter));
+        }
+      })
+      .catch(() => {});
     fetchProductsFromSheet()
       .then((sheetProducts) => {
         const orderedProducts = mergeStoredOrder(sheetProducts);
@@ -147,6 +192,34 @@ export default function AdminPage() {
   };
 
   const updateField = (field, value) => setForm((current) => ({ ...current, [field]: value }));
+  const updateHero = (field, value) => setHeroSettings((current) => ({ ...current, [field]: value }));
+  const updateFooter = (field, value) => setFooterSettings((current) => ({ ...current, [field]: value }));
+
+  const saveHero = async (event) => {
+    event.preventDefault();
+    try {
+      await saveHomepageSettings(heroSettings);
+      window.localStorage.setItem("aplikasiid_hero", JSON.stringify(heroSettings));
+      setNotice("Pengaturan homepage berhasil disimpan.");
+    } catch {
+      window.localStorage.setItem("aplikasiid_hero", JSON.stringify(heroSettings));
+      setNotice("Tersimpan di browser. Deploy Apps Script homepage agar tersimpan ke spreadsheet.");
+    }
+    window.setTimeout(() => setNotice(""), 3000);
+  };
+
+  const saveFooter = async (event) => {
+    event.preventDefault();
+    try {
+      await saveFooterSettings(footerSettings);
+      window.localStorage.setItem("aplikasiid_footer", JSON.stringify(footerSettings));
+      setNotice("Pengaturan footer berhasil disimpan.");
+    } catch {
+      window.localStorage.setItem("aplikasiid_footer", JSON.stringify(footerSettings));
+      setNotice("Tersimpan di browser. Deploy Apps Script homepage agar tersimpan ke spreadsheet.");
+    }
+    window.setTimeout(() => setNotice(""), 3000);
+  };
 
   const editProduct = (product) => {
     setEditingId(product.id);
@@ -238,6 +311,39 @@ export default function AdminPage() {
         <div><strong>{productList.length}</strong><span>Total produk</span></div>
         <div><strong>{productList.filter((product) => product.catalogImageUrl).length}</strong><span>Dengan katalog</span></div>
         <div><strong>{productList.filter((product) => product.buyUrl).length}</strong><span>URL beli aktif</span></div>
+      </section>
+
+      <section className="admin-editor admin-hero-editor">
+        <div className="admin-section-heading"><div><p className="admin-eyebrow">HOMEPAGE EDITOR</p><h2>Hero section</h2></div><span className="admin-editor-note">Perubahan tampil di bagian paling atas toko</span></div>
+        <form className="admin-form" onSubmit={saveHero}>
+          <label>Badge kecil<input value={heroSettings.badge} onChange={(event) => updateHero("badge", event.target.value)} /></label>
+          <label>Judul utama<input value={heroSettings.title} onChange={(event) => updateHero("title", event.target.value)} /></label>
+          <label>Judul baris kedua<input value={heroSettings.titleLineTwo} onChange={(event) => updateHero("titleLineTwo", event.target.value)} /></label>
+          <label className="admin-wide">Deskripsi<textarea value={heroSettings.description} onChange={(event) => updateHero("description", event.target.value)} /></label>
+          <label>Teks tombol utama<input value={heroSettings.primaryLabel} onChange={(event) => updateHero("primaryLabel", event.target.value)} /></label>
+          <label>Tujuan tombol utama<select value={heroSettings.primaryTarget} onChange={(event) => updateHero("primaryTarget", event.target.value)}><option value="produk">Produk</option><option value="bantuan">Bantuan</option><option value="garansi">Garansi</option></select></label>
+          <label>Teks tombol kedua<input value={heroSettings.secondaryLabel} onChange={(event) => updateHero("secondaryLabel", event.target.value)} /></label>
+          <label>Tujuan tombol kedua<select value={heroSettings.secondaryTarget} onChange={(event) => updateHero("secondaryTarget", event.target.value)}><option value="produk">Produk</option><option value="bantuan">Bantuan</option><option value="garansi">Garansi</option></select></label>
+          <label>Trust badge 1<input value={heroSettings.trustOne} onChange={(event) => updateHero("trustOne", event.target.value)} /></label>
+          <label>Trust badge 2<input value={heroSettings.trustTwo} onChange={(event) => updateHero("trustTwo", event.target.value)} /></label>
+          <label>Trust badge 3<input value={heroSettings.trustThree} onChange={(event) => updateHero("trustThree", event.target.value)} /></label>
+          <div className="admin-hero-mini-preview"><span>Preview</span><strong>{heroSettings.title}</strong><b>{heroSettings.titleLineTwo}</b><small>{heroSettings.description}</small></div>
+          <div className="admin-form-actions"><button className="admin-primary" type="submit">Simpan Hero Homepage</button><button className="admin-ghost" type="button" onClick={() => setHeroSettings(defaultHeroSettings)}>Kembalikan Default</button></div>
+        </form>
+      </section>
+
+      <section className="admin-editor admin-footer-editor">
+        <div className="admin-section-heading"><div><p className="admin-eyebrow">HOMEPAGE EDITOR</p><h2>Pengaturan footer</h2></div><span className="admin-editor-note">Konten bagian paling bawah toko</span></div>
+        <form className="admin-form" onSubmit={saveFooter}>
+          <label>Nama brand<input value={footerSettings.brand} onChange={(event) => updateFooter("brand", event.target.value)} /></label>
+          <label className="admin-wide">Deskripsi footer<textarea value={footerSettings.description} onChange={(event) => updateFooter("description", event.target.value)} /></label>
+          <label className="admin-wide">Teks copyright<input value={footerSettings.copyright} onChange={(event) => updateFooter("copyright", event.target.value)} /></label>
+          <label>URL WhatsApp<input type="url" value={footerSettings.whatsapp} onChange={(event) => updateFooter("whatsapp", event.target.value)} placeholder="https://wa.me/..." /></label>
+          <label>URL Instagram<input type="url" value={footerSettings.instagram} onChange={(event) => updateFooter("instagram", event.target.value)} placeholder="https://instagram.com/..." /></label>
+          <label>Email kontak<input type="email" value={footerSettings.email} onChange={(event) => updateFooter("email", event.target.value)} placeholder="halo@contoh.com" /></label>
+          <div className="admin-footer-mini-preview"><strong>{footerSettings.brand}</strong><small>{footerSettings.description}</small><span>{footerSettings.copyright}</span></div>
+          <div className="admin-form-actions"><button className="admin-primary" type="submit">Simpan Footer</button><button className="admin-ghost" type="button" onClick={() => setFooterSettings(defaultFooterSettings)}>Kembalikan Default</button></div>
+        </form>
       </section>
 
       <section className="admin-editor">

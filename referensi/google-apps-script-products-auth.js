@@ -1,7 +1,13 @@
 const PRODUCTS_SHEET_NAME = "products";
 const AUTH_SHEET_NAME = "auth";
 
-function doGet() {
+function doGet(event) {
+  if (event && event.parameter && event.parameter.resource === "homepage") {
+    return readHomepageSettings();
+  }
+  if (event && event.parameter && event.parameter.resource === "footer") {
+    return readSettingsSheet("footer");
+  }
   const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(PRODUCTS_SHEET_NAME);
   const values = sheet.getDataRange().getValues();
   const headers = values.shift();
@@ -25,6 +31,14 @@ function doPost(event) {
 
   if (data.action === "auth") {
     return authenticate(data.login, data.password);
+  }
+
+  if (data.action === "save_homepage") {
+    return saveHomepageSettings(data.settings || {});
+  }
+
+  if (data.action === "save_footer") {
+    return saveSettingsSheet("footer", data.settings || {});
   }
 
   const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(PRODUCTS_SHEET_NAME);
@@ -73,6 +87,42 @@ function authenticate(login, password) {
   if (!account) return jsonOutput({ success: false, message: "Login atau password salah." });
 
   return jsonOutput({ success: true, login: account[loginIndex], role: String(account[roleIndex]).trim().toLowerCase() });
+}
+
+function readHomepageSettings() {
+  return readSettingsSheet("homepage_settings");
+}
+
+function readSettingsSheet(sheetName) {
+  const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(sheetName);
+  if (!sheet) return jsonOutput({});
+  const values = sheet.getDataRange().getValues();
+  const settings = {};
+  values.slice(1).forEach(row => {
+    if (row[0]) settings[String(row[0]).trim()] = row[1] ?? "";
+  });
+  return jsonOutput(settings);
+}
+
+function saveHomepageSettings(settings) {
+  return saveSettingsSheet("homepage_settings", settings);
+}
+
+function saveSettingsSheet(sheetName, settings) {
+  const spreadsheet = SpreadsheetApp.getActiveSpreadsheet();
+  let sheet = spreadsheet.getSheetByName(sheetName);
+  if (!sheet) {
+    sheet = spreadsheet.insertSheet(sheetName);
+    sheet.appendRow(["key", "value"]);
+  }
+  const values = sheet.getDataRange().getValues();
+  const rows = new Map();
+  values.slice(1).forEach((row, index) => rows.set(String(row[0]).trim(), index + 2));
+  Object.keys(settings).forEach(key => {
+    if (rows.has(key)) sheet.getRange(rows.get(key), 2).setValue(settings[key]);
+    else sheet.appendRow([key, settings[key]]);
+  });
+  return jsonOutput({ success: true });
 }
 
 function jsonOutput(data) {

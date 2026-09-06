@@ -2,7 +2,29 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { products } from "../lib/products";
-import { fetchProductsFromSheet } from "../lib/products-api";
+import { fetchFooterSettings, fetchHomepageSettings, fetchProductsFromSheet } from "../lib/products-api";
+
+const defaultHeroSettings = {
+  badge: "238+ Software Aktif",
+  title: "Software Original",
+  titleLineTwo: "untuk Tugas & Kerja",
+  description: "Solusi software terpercaya untuk kebutuhan kerja, desain, editing, dan bisnis dengan proses aktivasi cepat serta bantuan pelanggan.",
+  primaryLabel: "Mulai Belanja",
+  primaryTarget: "produk",
+  secondaryLabel: "Cek Pesanan",
+  secondaryTarget: "bantuan",
+  trustOne: "Full Version",
+  trustTwo: "Aktivasi Cepat",
+  trustThree: "Support Pelanggan"
+};
+const defaultFooterSettings = {
+  brand: "Aplikasi.id",
+  description: "Pusat software terpercaya untuk kebutuhan kerja dan bisnis.",
+  copyright: "© 2026. Semua hak dilindungi.",
+  whatsapp: "",
+  instagram: "",
+  email: ""
+};
 
 const formatRp = (amount) => new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", maximumFractionDigits: 0 }).format(amount);
 const orderProducts = (items) => [...items].sort((a, b) => {
@@ -33,12 +55,36 @@ export default function HomePage() {
   const [buyer, setBuyer] = useState({ name: "", email: "", phone: "" });
   const [invoiceQuery, setInvoiceQuery] = useState("");
   const [notice, setNotice] = useState("");
+  const [heroSettings, setHeroSettings] = useState(defaultHeroSettings);
+  const [footerSettings, setFooterSettings] = useState(defaultFooterSettings);
 
   useEffect(() => {
     const savedCart = window.localStorage.getItem("aplikasiid_cart");
     if (savedCart) setCart(JSON.parse(savedCart));
     const savedProducts = window.localStorage.getItem("aplikasiid_products");
     if (savedProducts) setProductList(orderProducts(JSON.parse(savedProducts)));
+    const savedHero = window.localStorage.getItem("aplikasiid_hero");
+    if (savedHero) setHeroSettings({ ...defaultHeroSettings, ...JSON.parse(savedHero) });
+    const savedFooter = window.localStorage.getItem("aplikasiid_footer");
+    if (savedFooter) setFooterSettings({ ...defaultFooterSettings, ...JSON.parse(savedFooter) });
+    fetchHomepageSettings()
+      .then((settings) => {
+        if (settings && !Array.isArray(settings)) {
+          const nextHero = { ...defaultHeroSettings, ...settings };
+          setHeroSettings(nextHero);
+          window.localStorage.setItem("aplikasiid_hero", JSON.stringify(nextHero));
+        }
+      })
+      .catch(() => {});
+    fetchFooterSettings()
+      .then((settings) => {
+        if (settings && !Array.isArray(settings)) {
+          const nextFooter = { ...defaultFooterSettings, ...settings };
+          setFooterSettings(nextFooter);
+          window.localStorage.setItem("aplikasiid_footer", JSON.stringify(nextFooter));
+        }
+      })
+      .catch(() => {});
     fetchProductsFromSheet()
       .then((sheetProducts) => {
         const orderedProducts = mergeStoredOrder(sheetProducts);
@@ -110,11 +156,11 @@ export default function HomePage() {
           <div className="container">
             <div className="hero-banner">
               <div className="hero-content">
-                <span className="hero-badge">▱ &nbsp; 238+ Software Aktif</span>
-                <h1>Software Original<br />untuk Tugas &amp; Kerja</h1>
-                <p>Solusi software terpercaya untuk kebutuhan kerja, desain, editing, dan bisnis dengan proses <b>aktivasi cepat</b> serta <b>bantuan pelanggan.</b></p>
-                <div className="hero-cta"><button className="btn-primary" onClick={() => scrollTo("produk")}>Mulai Belanja <span>→</span></button><button className="btn-secondary" onClick={() => scrollTo("bantuan")}>▤ &nbsp; Cek Pesanan</button></div>
-                <div className="trust-badges"><span>♧ &nbsp; Full Version</span><span>ϟ &nbsp; Aktivasi Cepat</span><span>♧ &nbsp; Support Pelanggan</span></div>
+                <span className="hero-badge">▱ &nbsp; {heroSettings.badge}</span>
+                <h1>{heroSettings.title}<br />{heroSettings.titleLineTwo}</h1>
+                <p>{heroSettings.description}</p>
+                <div className="hero-cta"><button className="btn-primary" onClick={() => scrollTo(heroSettings.primaryTarget || "produk")}>{heroSettings.primaryLabel} <span>→</span></button><button className="btn-secondary" onClick={() => scrollTo(heroSettings.secondaryTarget || "bantuan")}>▤ &nbsp; {heroSettings.secondaryLabel}</button></div>
+                <div className="trust-badges"><span>♧ &nbsp; {heroSettings.trustOne}</span><span>ϟ &nbsp; {heroSettings.trustTwo}</span><span>♧ &nbsp; {heroSettings.trustThree}</span></div>
               </div>
               <div className="category-quick-grid">
                 {[['Office', 'Windows · Office', '▣'], ['Design', 'Adobe · Corel', '◈'], ['Engineering', 'AutoCAD · SketchUp', '✧'], ['Utility', 'IDM · Recovery', '⚿']].map(([name, description, icon]) => <button className="quick-cat-card" key={name} onClick={() => { setCategory(name); scrollTo("produk"); }}><strong>{icon}</strong><span><b>{name}</b><small>{description}</small></span></button>)}
@@ -141,7 +187,7 @@ export default function HomePage() {
         <section className="help-section" id="bantuan"><div className="container"><h2>Butuh bantuan memilih software?</h2><p>Tim kami siap membantu menemukan paket yang sesuai kebutuhan kerja dan perangkat Anda.</p><button className="btn-primary" onClick={() => setActiveModal("request")}>Request Software →</button></div></section>
       </main>
 
-      <footer className="footer"><div className="container"><strong>Aplikasi.id</strong><span>© 2026. Pusat Software Terpercaya.</span></div></footer>
+      <footer className="footer"><div className="container"><div className="footer-brand"><strong>{footerSettings.brand}</strong><small>{footerSettings.description}</small></div><div className="footer-links">{footerSettings.whatsapp && <a href={footerSettings.whatsapp} target="_blank" rel="noreferrer">WhatsApp</a>}{footerSettings.instagram && <a href={footerSettings.instagram} target="_blank" rel="noreferrer">Instagram</a>}{footerSettings.email && <a href={`mailto:${footerSettings.email}`}>Email</a>}<span>{footerSettings.copyright}</span></div></div></footer>
       {notice && <div className="toast">✓ &nbsp; {notice}</div>}
       {selectedProduct && <ProductModal product={selectedProduct} onClose={() => setSelectedProduct(null)} onBuy={addToCart} />}
       {activeModal === "cart" && <CartModal cart={cart} onClose={() => setActiveModal(null)} onCheckout={() => setActiveModal("checkout")} onRemove={(id) => setCart((items) => items.filter((item) => item.id !== id))} />}
