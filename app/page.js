@@ -5,6 +5,7 @@ import { products } from "../lib/products";
 import { fetchProductsFromSheet } from "../lib/products-api";
 
 const formatRp = (amount) => new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", maximumFractionDigits: 0 }).format(amount);
+const orderProducts = (items) => [...items].sort((a, b) => (Number(a.sortOrder) || 0) - (Number(b.sortOrder) || 0));
 
 export default function HomePage() {
   const [productList, setProductList] = useState(products);
@@ -22,12 +23,12 @@ export default function HomePage() {
     const savedCart = window.localStorage.getItem("aplikasiid_cart");
     if (savedCart) setCart(JSON.parse(savedCart));
     const savedProducts = window.localStorage.getItem("aplikasiid_products");
-    if (savedProducts) setProductList(JSON.parse(savedProducts));
-
+    if (savedProducts) setProductList(orderProducts(JSON.parse(savedProducts)));
     fetchProductsFromSheet()
       .then((sheetProducts) => {
-        setProductList(sheetProducts);
-        window.localStorage.setItem("aplikasiid_products", JSON.stringify(sheetProducts));
+        const orderedProducts = orderProducts(sheetProducts);
+        setProductList(orderedProducts);
+        window.localStorage.setItem("aplikasiid_products", JSON.stringify(orderedProducts));
       })
       .catch(() => {});
 
@@ -51,7 +52,7 @@ export default function HomePage() {
     if (sort === "popular") return [...result].sort((a, b) => b.sales - a.sales);
     if (sort === "price-low") return [...result].sort((a, b) => a.price - b.price);
     if (sort === "price-high") return [...result].sort((a, b) => b.price - a.price);
-    return result;
+    return sort === "newest" ? orderProducts(result) : result;
   }, [category, productList, query, sort]);
 
   const addToCart = (product) => {
