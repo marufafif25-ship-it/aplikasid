@@ -36,7 +36,20 @@ const readProducts = () => {
 };
 
 const formatRp = (amount) => new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", maximumFractionDigits: 0 }).format(Number(amount) || 0);
-const withOrder = (items) => items.map((product, index) => ({ ...product, sortOrder: Number.isFinite(Number(product.sortOrder)) ? Number(product.sortOrder) : index }));
+const hasSortOrder = (value) => value !== "" && value !== null && value !== undefined && Number.isFinite(Number(value));
+const withOrder = (items) => items.map((product, index) => ({ ...product, sortOrder: hasSortOrder(product.sortOrder) ? Number(product.sortOrder) : index }));
+const mergeStoredOrder = (items) => {
+  if (typeof window === "undefined") return withOrder(items);
+  try {
+    const sheetHasOrder = items.some((product) => hasSortOrder(product.sortOrder));
+    if (sheetHasOrder) return withOrder(items).sort((a, b) => a.sortOrder - b.sortOrder);
+    const saved = JSON.parse(window.localStorage.getItem(STORAGE_KEY) || "[]");
+    const savedOrder = new Map(saved.map((product, index) => [product.id, hasSortOrder(product.sortOrder) ? Number(product.sortOrder) : index]));
+    return withOrder(items).map((product, index) => ({ ...product, sortOrder: savedOrder.has(product.id) ? savedOrder.get(product.id) : index })).sort((a, b) => a.sortOrder - b.sortOrder);
+  } catch {
+    return withOrder(items);
+  }
+};
 
 export default function AdminPage() {
   const [productList, setProductList] = useState(defaultProducts);
@@ -50,7 +63,7 @@ export default function AdminPage() {
     setProductList(withOrder(readProducts()));
     fetchProductsFromSheet()
       .then((sheetProducts) => {
-        const orderedProducts = withOrder(sheetProducts).sort((a, b) => a.sortOrder - b.sortOrder);
+        const orderedProducts = mergeStoredOrder(sheetProducts);
         setProductList(orderedProducts);
         window.localStorage.setItem(STORAGE_KEY, JSON.stringify(orderedProducts));
       })
@@ -76,7 +89,9 @@ export default function AdminPage() {
   const saveOrder = async (nextProducts) => {
     const orderedProducts = nextProducts.map((product, index) => ({ ...product, sortOrder: index }));
     try {
-      await Promise.all(orderedProducts.map((product) => saveProductToSheet(product)));
+      for (const product of orderedProducts) {
+        await saveProductToSheet(product);
+      }
       persist(orderedProducts, "Urutan produk berhasil disimpan.");
     } catch {
       setNotice("Urutan tersimpan lokal, tetapi gagal disinkronkan ke spreadsheet.");

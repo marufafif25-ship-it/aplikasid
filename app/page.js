@@ -5,7 +5,22 @@ import { products } from "../lib/products";
 import { fetchProductsFromSheet } from "../lib/products-api";
 
 const formatRp = (amount) => new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", maximumFractionDigits: 0 }).format(amount);
-const orderProducts = (items) => [...items].sort((a, b) => (Number(a.sortOrder) || 0) - (Number(b.sortOrder) || 0));
+const orderProducts = (items) => [...items].sort((a, b) => {
+  const aOrder = a.sortOrder === "" || a.sortOrder === null || a.sortOrder === undefined ? Number.MAX_SAFE_INTEGER : Number(a.sortOrder);
+  const bOrder = b.sortOrder === "" || b.sortOrder === null || b.sortOrder === undefined ? Number.MAX_SAFE_INTEGER : Number(b.sortOrder);
+  return (Number.isFinite(aOrder) ? aOrder : Number.MAX_SAFE_INTEGER) - (Number.isFinite(bOrder) ? bOrder : Number.MAX_SAFE_INTEGER);
+});
+const mergeStoredOrder = (items) => {
+  if (typeof window === "undefined") return items;
+  try {
+    const saved = JSON.parse(window.localStorage.getItem("aplikasiid_products") || "[]");
+    const savedOrder = new Map(saved.map((product, index) => [product.id, product.sortOrder !== "" && product.sortOrder !== null && product.sortOrder !== undefined && Number.isFinite(Number(product.sortOrder)) ? Number(product.sortOrder) : index]));
+    const sheetHasOrder = items.some((product) => product.sortOrder !== "" && product.sortOrder !== null && product.sortOrder !== undefined && Number.isFinite(Number(product.sortOrder)));
+    return orderProducts(items.map((product, index) => ({ ...product, sortOrder: sheetHasOrder ? product.sortOrder : (savedOrder.has(product.id) ? savedOrder.get(product.id) : index) })));
+  } catch {
+    return items;
+  }
+};
 
 export default function HomePage() {
   const [productList, setProductList] = useState(products);
@@ -26,7 +41,7 @@ export default function HomePage() {
     if (savedProducts) setProductList(orderProducts(JSON.parse(savedProducts)));
     fetchProductsFromSheet()
       .then((sheetProducts) => {
-        const orderedProducts = orderProducts(sheetProducts);
+        const orderedProducts = mergeStoredOrder(sheetProducts);
         setProductList(orderedProducts);
         window.localStorage.setItem("aplikasiid_products", JSON.stringify(orderedProducts));
       })
