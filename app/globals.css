@@ -39,3 +39,4 @@
 
 .admin-drag-hint{margin:-8px 0 12px;color:#7b8da6;font-size:11px}.admin-product-row[draggable="true"]{cursor:grab}.admin-product-row[draggable="true"]:active{cursor:grabbing}.admin-drag-handle{flex:0 0 16px;color:#91a4bf;font-size:17px;letter-spacing:-5px;cursor:grab}.admin-order-actions{display:flex;gap:4px}.admin-order-actions button{min-width:28px;padding:6px 8px}.admin-product-row .admin-row-actions{min-width:86px}
 @media(max-width:600px){.admin-drag-handle{font-size:14px}.admin-order-actions button{padding:5px 7px}.admin-product-row .admin-row-actions{min-width:74px}}
+.admin-user-badge{padding:8px 10px;border-radius:999px;background:#eaf2ff;color:#2563eb;font-size:10px;font-weight:800}

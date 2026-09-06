@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { products as defaultProducts } from "../../lib/products";
-import { deleteProductFromSheet, fetchProductsFromSheet, saveProductToSheet } from "../../lib/products-api";
+import { authenticateAdmin, deleteProductFromSheet, fetchProductsFromSheet, saveProductToSheet } from "../../lib/products-api";
 
 const STORAGE_KEY = "aplikasiid_products";
 const PAGE_SIZE = 15;
@@ -52,6 +52,9 @@ const mergeStoredOrder = (items) => {
 };
 
 export default function AdminPage() {
+  const [authReady, setAuthReady] = useState(false);
+  const [adminUser, setAdminUser] = useState(null);
+  const [loginForm, setLoginForm] = useState({ login: "", password: "" });
   const [productList, setProductList] = useState(defaultProducts);
   const [editingId, setEditingId] = useState(null);
   const [form, setForm] = useState(emptyProduct);
@@ -60,6 +63,11 @@ export default function AdminPage() {
   const [notice, setNotice] = useState("");
 
   useEffect(() => {
+    try {
+      const savedUser = JSON.parse(window.sessionStorage.getItem("aplikasiid_admin_user") || "null");
+      if (savedUser?.role === "admin" || savedUser?.role === "owner") setAdminUser(savedUser);
+    } catch {}
+    setAuthReady(true);
     setProductList(withOrder(readProducts()));
     fetchProductsFromSheet()
       .then((sheetProducts) => {
@@ -69,6 +77,29 @@ export default function AdminPage() {
       })
       .catch(() => setNotice("Spreadsheet tidak dapat diakses. Data lokal digunakan."));
   }, []);
+
+  const login = async (event) => {
+    event.preventDefault();
+    setNotice("Memeriksa akun...");
+    try {
+      const result = await authenticateAdmin(loginForm.login.trim(), loginForm.password);
+      if (!result?.success || !["admin", "owner"].includes(String(result.role).toLowerCase())) {
+        setNotice(result?.message || "Akun tidak memiliki akses admin.");
+        return;
+      }
+      const user = { login: result.login || loginForm.login.trim(), role: String(result.role).toLowerCase() };
+      window.sessionStorage.setItem("aplikasiid_admin_user", JSON.stringify(user));
+      setAdminUser(user);
+      setNotice("");
+    } catch {
+      setNotice("Login gagal. Periksa koneksi atau konfigurasi Apps Script.");
+    }
+  };
+
+  const logout = () => {
+    window.sessionStorage.removeItem("aplikasiid_admin_user");
+    setAdminUser(null);
+  };
 
   const filteredProducts = useMemo(() => {
     const query = search.toLowerCase().trim();
@@ -178,6 +209,11 @@ export default function AdminPage() {
     reader.readAsDataURL(file);
   };
 
+  if (!authReady) return null;
+  if (!adminUser) {
+    return <main className="admin-login-page"><form className="admin-login-card" onSubmit={login}><p className="admin-eyebrow">APLIKASI.ID CONTROL ROOM</p><h1>Login Admin</h1><p>Masuk menggunakan akun dari sheet auth.</p><label>Login<input value={loginForm.login} onChange={(event) => setLoginForm({ ...loginForm, login: event.target.value })} autoComplete="username" required /></label><label>Password<input type="password" value={loginForm.password} onChange={(event) => setLoginForm({ ...loginForm, password: event.target.value })} autoComplete="current-password" required /></label><button className="admin-primary" type="submit">Masuk</button>{notice && <small className="admin-login-error">{notice}</small>}<a href="/">← Kembali ke toko</a></form></main>;
+  }
+
   return (
     <main className="admin-page">
       <header className="admin-header">
@@ -187,7 +223,7 @@ export default function AdminPage() {
           <h1>Dashboard Produk</h1>
           <p className="admin-subtitle">Kelola katalog, gambar, harga, dan tujuan tombol beli tanpa mengubah kode toko.</p>
         </div>
-        <button className="admin-primary" type="button" onClick={startNew}>+ Produk Baru</button>
+          <div className="admin-header-actions"><span className="admin-user-badge">{adminUser.login} · {adminUser.role}</span><button className="admin-primary" type="button" onClick={startNew}>+ Produk Baru</button><button className="admin-ghost" type="button" onClick={logout}>Keluar</button></div>
       </header>
 
       <section className="admin-stats" aria-label="Ringkasan katalog">
