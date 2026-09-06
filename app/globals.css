@@ -46,3 +46,25 @@
 .admin-footer-mini-preview{grid-column:span 2;display:flex;flex-direction:column;gap:5px;padding:16px 18px;border-radius:10px;background:#f5f8fc;border:1px solid var(--line)}.admin-footer-mini-preview strong{font:800 17px Outfit;color:var(--ink)}.admin-footer-mini-preview small,.admin-footer-mini-preview span{color:var(--muted);font-size:10px}.footer .container{align-items:center;gap:20px}.footer-brand{display:flex;flex-direction:column;gap:3px}.footer-brand small{color:#8a9ab0;font-size:10px}.footer-links{display:flex;align-items:center;justify-content:flex-end;gap:14px;flex-wrap:wrap}.footer-links a{color:var(--blue);font-size:10px;font-weight:800;text-decoration:none}.footer-links span{font-size:10px}
 @media(max-width:600px){.admin-hero-mini-preview{grid-column:auto}.admin-editor-note{align-self:flex-start}}
 .admin-login-page{display:grid;place-items:center;min-height:100dvh;padding:24px}
+.chat-widget{position:fixed;right:22px;bottom:22px;z-index:40;display:flex;flex-direction:column;align-items:flex-end;gap:12px}.chat-launcher{display:flex;align-items:center;gap:8px;min-height:48px;padding:0 16px;border-radius:999px;background:linear-gradient(135deg,#2563eb,#1d4ed8);color:#fff;font-size:20px;font-weight:800;box-shadow:0 12px 26px rgba(37,99,235,.3);transition:transform .2s,box-shadow .2s}.chat-launcher:hover{transform:translateY(-2px);box-shadow:0 16px 30px rgba(37,99,235,.36)}.chat-launcher-label{font-size:11px}.chat-panel{width:min(360px,calc(100vw - 28px));overflow:hidden;border:1px solid #dce5f2;border-radius:18px;background:#fff;box-shadow:0 20px 55px rgba(15,38,75,.2);animation:chat-in .2s ease-out}.chat-panel-header{display:flex;align-items:center;justify-content:space-between;padding:16px 17px;background:linear-gradient(135deg,#0b1934,#17377e);color:#fff}.chat-panel-header strong,.chat-panel-header small{display:block}.chat-panel-header strong{font:700 16px Outfit}.chat-panel-header small{margin-top:3px;color:#bfd5ff;font-size:9px}.chat-online-dot{width:9px;height:9px;border-radius:50%;background:#4ade80;box-shadow:0 0 0 4px rgba(74,222,128,.16)}.chat-messages{display:flex;flex-direction:column;gap:8px;max-height:220px;overflow:auto;padding:15px;background:#f7faff}.chat-message{max-width:84%;margin:0;padding:9px 11px;border-radius:12px;font-size:11px;line-height:1.45}.chat-message.bot{align-self:flex-start;border:1px solid #e0e9f5;background:#fff;color:#526078;border-top-left-radius:4px}.chat-message.user{align-self:flex-end;background:#2563eb;color:#fff;border-top-right-radius:4px}.chat-quick-actions{display:flex;gap:6px;overflow:auto;padding:10px 12px 2px}.chat-quick-actions button{flex:0 0 auto;border:1px solid #d7e3f1;border-radius:999px;background:#fff;color:#2563eb;padding:6px 9px;font-size:9px;font-weight:800}.chat-composer{display:flex;gap:7px;padding:10px 12px}.chat-composer input{min-width:0;flex:1;border:1px solid #dce5f2;border-radius:9px;padding:10px;font-size:11px;outline:0}.chat-composer input:focus{border-color:#5b8ff5;box-shadow:0 0 0 3px rgba(37,99,235,.1)}.chat-composer button{width:36px;border-radius:9px;background:#2563eb;color:#fff;font-size:17px}.chat-whatsapp{display:flex;align-items:center;justify-content:space-between;margin:0 12px 12px;padding:10px 12px;border-radius:9px;background:#dcfce7;color:#15803d;font-size:10px;font-weight:800;text-decoration:none}.chat-whatsapp span{font-size:15px}@keyframes chat-in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+@media(max-width:560px){.chat-widget{right:14px;bottom:14px}.chat-panel{width:calc(100vw - 28px)}.chat-launcher{min-height:46px;padding-inline:14px}}
+.chat-quick-title{padding:10px 12px 0;color:#8a9ab0;font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.8px}.chat-quick-actions button:hover{border-color:#7ca5f7;background:#f3f7ff}
+.chat-quick-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));overflow:visible;padding:8px 12px 4px}.chat-quick-actions button{min-width:0;min-height:38px;white-space:normal;border-radius:9px;padding:8px 10px;line-height:1.25;text-align:left}
+
+@media(max-width:560px){
+	html,body{overflow-x:hidden}
+	.container{width:100%;max-width:100%;padding-inline:14px}
+	.products-grid{width:100%;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+	.product-card{min-width:0;width:100%;border-radius:12px}
+	.card-artwork,.card-artwork-catalog{width:100%;height:auto;aspect-ratio:1 / 1;min-height:0}
+	.card-catalog-image{width:100%;height:100%;min-width:0}
+	.card-body{min-width:0;padding:9px}
+	.card-specs-pills{min-width:0;min-height:25px;overflow:hidden}
+	.card-specs-pills span{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+	.card-body h3{width:100%;min-width:0;overflow-wrap:anywhere;font-size:11px;line-height:1.25}
+	.product-meta{min-width:0;gap:4px;font-size:9px;white-space:nowrap}
+	.pricing-wrapper{min-width:0;gap:4px}
+	.pricing-wrapper b{font-size:14px}
+	.pricing-wrapper em{font-size:8px}
+	.btn-card-detail,.btn-card-buy{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:10px;padding-inline:5px}
+}

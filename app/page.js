@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { products } from "../lib/products";
-import { fetchFooterSettings, fetchHomepageSettings, fetchProductsFromSheet } from "../lib/products-api";
+import { fetchChatFaq, fetchFooterSettings, fetchHomepageSettings, fetchProductsFromSheet } from "../lib/products-api";
 
 const defaultHeroSettings = {
   badge: "238+ Software Aktif",
@@ -25,6 +25,19 @@ const defaultFooterSettings = {
   tiktok: "",
   email: ""
 };
+const defaultFaq = [
+  { id: "order", question: "Cara order", answer: "Pilih software, klik Beli Sekarang, lalu ikuti halaman pembayaran yang terbuka.", keywords: "order,beli,pesan" },
+  { id: "warranty", question: "Garansi", answer: "Produk memiliki garansi sesuai keterangan pada katalog. Hubungi CS jika ada kendala instalasi.", keywords: "garansi,aman" },
+  { id: "invoice", question: "Cek pesanan", answer: "Setelah pembayaran selesai, Anda akan menerima email konfirmasi dengan detail pesanan. Pengirim email dari lynk.id, buka email tersebut di laptop lalu klik link gdrive - lalu ikutin video tutorial cara installnya.", keywords: "invoice,pesanan" }
+];
+const normalizeFaqItems = (items) => items.map((item, index) => ({
+  id: item.id || `faq-${index}`,
+  question: item.question || item.Question || "",
+  answer: item.answer || item.Answer || "",
+  keywords: item.keywords || item.Keywords || "",
+  active: item.active,
+  sortOrder: item.sortOrder
+})).filter((item) => item.question && item.answer);
 
 const formatRp = (amount) => new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", maximumFractionDigits: 0 }).format(amount);
 const orderProducts = (items) => [...items].sort((a, b) => {
@@ -58,6 +71,10 @@ export default function HomePage() {
   const [notice, setNotice] = useState("");
   const [heroSettings, setHeroSettings] = useState(defaultHeroSettings);
   const [footerSettings, setFooterSettings] = useState(defaultFooterSettings);
+  const [chatOpen, setChatOpen] = useState(false);
+  const [chatInput, setChatInput] = useState("");
+  const [chatMessages, setChatMessages] = useState([{ from: "bot", text: "Halo! Saya CS Aplikasi.id. Ada yang bisa saya bantu?" }]);
+  const [faqItems, setFaqItems] = useState(defaultFaq);
 
   useEffect(() => {
     const savedCart = window.localStorage.getItem("aplikasiid_cart");
@@ -84,6 +101,12 @@ export default function HomePage() {
           setFooterSettings(nextFooter);
           window.localStorage.setItem("aplikasiid_footer", JSON.stringify(nextFooter));
         }
+      })
+      .catch(() => {});
+    fetchChatFaq()
+      .then((items) => {
+        const activeItems = normalizeFaqItems(items).filter((item) => item.active !== false && String(item.active).toLowerCase() !== "false").sort((a, b) => Number(a.sortOrder || 0) - Number(b.sortOrder || 0));
+        if (activeItems.length) setFaqItems(activeItems);
       })
       .catch(() => {});
     fetchProductsFromSheet()
@@ -129,6 +152,29 @@ export default function HomePage() {
   };
 
   const scrollTo = (id) => document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
+
+  const getChatReply = (message) => {
+    const text = message.toLowerCase();
+    const matchedFaq = faqItems.find((item) => String(item.keywords || "").toLowerCase().split(",").some((keyword) => keyword.trim() && text.includes(keyword.trim())));
+    if (matchedFaq) return matchedFaq.answer;
+    if (text.includes("order") || text.includes("beli") || text.includes("pesan")) return "Pilih software, klik Beli Sekarang, lalu ikuti halaman pembayaran yang terbuka.";
+    if (text.includes("bayar") || text.includes("pembayaran")) return "Pembayaran dilakukan melalui link checkout pada produk. Setelah pembayaran selesai, ikuti instruksi pengiriman akses.";
+    if (text.includes("garansi") || text.includes("aman")) return "Setiap produk memiliki informasi garansi di katalog. Tim CS juga siap membantu jika ada kendala instalasi.";
+    if (text.includes("versi") || text.includes("software")) return "Anda bisa mencari software lewat kolom pencarian atau memilih kategori produk di katalog.";
+    if (text.includes("invoice") || text.includes("pesanan")) return "Setelah pembayaran selesai, Anda akan menerima email konfirmasi dengan detail pesanan. Pengirim email dari lynk.id, buka email tersebut di laptop lalu klik link gdrive - lalu ikutin video tutorial cara installnya.";
+    return "Saya belum menemukan jawabannya. Silakan hubungi CS melalui WhatsApp agar dibantu langsung.";
+  };
+
+  const sendChatMessage = (message = chatInput) => {
+    const trimmed = message.trim();
+    if (!trimmed) return;
+    setChatMessages((current) => [...current, { from: "user", text: trimmed }, { from: "bot", text: getChatReply(trimmed) }]);
+    setChatInput("");
+  };
+
+  const sendFaqQuestion = (item) => {
+    setChatMessages((current) => [...current, { from: "user", text: item.question }, { from: "bot", text: item.answer }]);
+  };
 
   return (
     <>
@@ -195,8 +241,13 @@ export default function HomePage() {
       {activeModal === "checkout" && <CheckoutModal buyer={buyer} setBuyer={setBuyer} cart={cart} onClose={() => setActiveModal(null)} onSuccess={() => { setCart([]); setActiveModal(null); setNotice("Pembayaran berhasil. Link Drive dikirim ke email Anda."); }} />}
       {activeModal === "invoice" && <InvoiceModal query={invoiceQuery} setQuery={setInvoiceQuery} onClose={() => setActiveModal(null)} />}
       {activeModal === "request" && <RequestModal onClose={() => setActiveModal(null)} onSubmit={() => { setActiveModal(null); setNotice("Request software berhasil dikirim."); }} />}
+      <ChatWidget open={chatOpen} setOpen={setChatOpen} input={chatInput} setInput={setChatInput} messages={chatMessages} faqItems={faqItems} onSend={sendChatMessage} onAskFaq={sendFaqQuestion} whatsapp={footerSettings.whatsapp} />
     </>
   );
+}
+
+function ChatWidget({ open, setOpen, input, setInput, messages, faqItems, onSend, onAskFaq, whatsapp }) {
+  return <div className={`chat-widget${open ? " is-open" : ""}`}><button className="chat-launcher" type="button" onClick={() => setOpen(!open)} aria-label={open ? "Tutup chat CS" : "Buka chat CS"}>{open ? "×" : "✦"}<span className="chat-launcher-label">{open ? "Tutup" : "Chat CS"}</span></button>{open && <section className="chat-panel" aria-label="Chat CS Aplikasi.id"><header className="chat-panel-header"><div><strong>CS Aplikasi.id</strong><small>Pilih pertanyaan yang ingin Anda tanyakan</small></div><span className="chat-online-dot" /></header><div className="chat-messages">{messages.map((message, index) => <p className={`chat-message ${message.from}`} key={`${message.from}-${index}`}>{message.text}</p>)}</div><div className="chat-quick-title">Pertanyaan populer</div><div className="chat-quick-actions">{faqItems.slice(0, 6).map((item) => <button type="button" key={item.id} onClick={() => onAskFaq(item)}>{item.question}</button>)}</div><form className="chat-composer" onSubmit={(event) => { event.preventDefault(); onSend(); }}><input value={input} onChange={(event) => setInput(event.target.value)} placeholder="Atau tulis pesan..." aria-label="Tulis pesan ke CS" /><button type="submit" aria-label="Kirim pesan">→</button></form>{whatsapp && <a className="chat-whatsapp" href={whatsapp} target="_blank" rel="noreferrer">Hubungi CS via WhatsApp <span>↗</span></a>}</section>}</div>;
 }
 
 function ProductCard({ product, onDetail, onBuy }) {

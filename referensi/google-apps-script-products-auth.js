@@ -8,6 +8,9 @@ function doGet(event) {
   if (event && event.parameter && event.parameter.resource === "footer") {
     return readSettingsSheet("footer");
   }
+  if (event && event.parameter && event.parameter.resource === "faq") {
+    return readFaq();
+  }
   const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(PRODUCTS_SHEET_NAME);
   const values = sheet.getDataRange().getValues();
   const headers = values.shift();
@@ -102,6 +105,21 @@ function readSettingsSheet(sheetName) {
     if (row[0]) settings[String(row[0]).trim()] = row[1] ?? "";
   });
   return jsonOutput(settings);
+}
+
+function readFaq() {
+  const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("chat_faq");
+  if (!sheet) return jsonOutput([]);
+  const values = sheet.getDataRange().getValues();
+  const headers = values.shift().map(header => String(header).trim().toLowerCase());
+  const faq = values.filter(row => row[0]).map(row => {
+    const item = {};
+    headers.forEach((header, index) => item[header] = row[index]);
+    item.active = String(item.active).toLowerCase() !== "false" && String(item.active) !== "0";
+    item.sortOrder = item.sortOrder === "" ? 0 : Number(item.sortOrder) || 0;
+    return item;
+  }).filter(item => item.active).sort((a, b) => a.sortOrder - b.sortOrder);
+  return jsonOutput(faq);
 }
 
 function saveHomepageSettings(settings) {
