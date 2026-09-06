@@ -22,7 +22,7 @@ const defaultFooterSettings = {
   description: "Pusat software terpercaya untuk kebutuhan kerja dan bisnis.",
   copyright: "© 2026. Semua hak dilindungi.",
   whatsapp: "",
-  instagram: "",
+  tiktok: "",
   email: ""
 };
 
@@ -32,6 +32,7 @@ const orderProducts = (items) => [...items].sort((a, b) => {
   const bOrder = b.sortOrder === "" || b.sortOrder === null || b.sortOrder === undefined ? Number.MAX_SAFE_INTEGER : Number(b.sortOrder);
   return (Number.isFinite(aOrder) ? aOrder : Number.MAX_SAFE_INTEGER) - (Number.isFinite(bOrder) ? bOrder : Number.MAX_SAFE_INTEGER);
 });
+const normalizeFooterSettings = (settings) => ({ ...defaultFooterSettings, ...settings, tiktok: settings.tiktok || settings.instagram || "" });
 const mergeStoredOrder = (items) => {
   if (typeof window === "undefined") return items;
   try {
@@ -66,7 +67,7 @@ export default function HomePage() {
     const savedHero = window.localStorage.getItem("aplikasiid_hero");
     if (savedHero) setHeroSettings({ ...defaultHeroSettings, ...JSON.parse(savedHero) });
     const savedFooter = window.localStorage.getItem("aplikasiid_footer");
-    if (savedFooter) setFooterSettings({ ...defaultFooterSettings, ...JSON.parse(savedFooter) });
+    if (savedFooter) setFooterSettings(normalizeFooterSettings(JSON.parse(savedFooter)));
     fetchHomepageSettings()
       .then((settings) => {
         if (settings && !Array.isArray(settings)) {
@@ -79,7 +80,7 @@ export default function HomePage() {
     fetchFooterSettings()
       .then((settings) => {
         if (settings && !Array.isArray(settings)) {
-          const nextFooter = { ...defaultFooterSettings, ...settings };
+          const nextFooter = normalizeFooterSettings(settings);
           setFooterSettings(nextFooter);
           window.localStorage.setItem("aplikasiid_footer", JSON.stringify(nextFooter));
         }
@@ -187,7 +188,7 @@ export default function HomePage() {
         <section className="help-section" id="bantuan"><div className="container"><h2>Butuh bantuan memilih software?</h2><p>Tim kami siap membantu menemukan paket yang sesuai kebutuhan kerja dan perangkat Anda.</p><button className="btn-primary" onClick={() => setActiveModal("request")}>Request Software →</button></div></section>
       </main>
 
-      <footer className="footer"><div className="container"><div className="footer-brand"><strong>{footerSettings.brand}</strong><small>{footerSettings.description}</small></div><div className="footer-links">{footerSettings.whatsapp && <a href={footerSettings.whatsapp} target="_blank" rel="noreferrer">WhatsApp</a>}{footerSettings.instagram && <a href={footerSettings.instagram} target="_blank" rel="noreferrer">Instagram</a>}{footerSettings.email && <a href={`mailto:${footerSettings.email}`}>Email</a>}<span>{footerSettings.copyright}</span></div></div></footer>
+      <footer className="footer"><div className="container"><div className="footer-brand"><strong>{footerSettings.brand}</strong><small>{footerSettings.description}</small></div><div className="footer-links">{footerSettings.whatsapp && <a href={footerSettings.whatsapp} target="_blank" rel="noreferrer">WhatsApp</a>}{footerSettings.tiktok && <a href={footerSettings.tiktok} target="_blank" rel="noreferrer">TikTok</a>}{footerSettings.email && <a href={`mailto:${footerSettings.email}`}>Email</a>}<span>{footerSettings.copyright}</span></div></div></footer>
       {notice && <div className="toast">✓ &nbsp; {notice}</div>}
       {selectedProduct && <ProductModal product={selectedProduct} onClose={() => setSelectedProduct(null)} onBuy={addToCart} />}
       {activeModal === "cart" && <CartModal cart={cart} onClose={() => setActiveModal(null)} onCheckout={() => setActiveModal("checkout")} onRemove={(id) => setCart((items) => items.filter((item) => item.id !== id))} />}
