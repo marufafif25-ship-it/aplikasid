@@ -51,6 +51,10 @@
 .chat-quick-title{padding:10px 12px 0;color:#8a9ab0;font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.8px}.chat-quick-actions button:hover{border-color:#7ca5f7;background:#f3f7ff}
 .chat-quick-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));overflow:visible;padding:8px 12px 4px}.chat-quick-actions button{min-width:0;min-height:38px;white-space:normal;border-radius:9px;padding:8px 10px;line-height:1.25;text-align:left}
 
+/* Match the search panel's outer edges to the hero banner. */
+.toolbar-card{max-width:1052px;margin-inline:auto}
+@media(max-width:560px){.toolbar-card{width:100%;max-width:100%;margin-inline:0}}
+
 @media(max-width:560px){
 	html,body{overflow-x:hidden}
 	.container{width:100%;max-width:100%;padding-inline:14px}
