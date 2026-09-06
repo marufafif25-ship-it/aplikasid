@@ -83,8 +83,16 @@ export default function AdminPage() {
     setNotice("Memeriksa akun...");
     try {
       const result = await authenticateAdmin(loginForm.login.trim(), loginForm.password);
-      if (!result?.success || !["admin", "owner"].includes(String(result.role).toLowerCase())) {
-        setNotice(result?.message || "Akun tidak memiliki akses admin.");
+      if (!result?.success) {
+        setNotice(result?.message || "Login atau password salah.");
+        return;
+      }
+      if (!result.role) {
+        setNotice("Apps Script belum dideploy dengan handler auth terbaru. Deploy versi baru lalu coba lagi.");
+        return;
+      }
+      if (!["admin", "owner"].includes(String(result.role).trim().toLowerCase())) {
+        setNotice(`Role "${result.role}" tidak memiliki akses dashboard.`);
         return;
       }
       const user = { login: result.login || loginForm.login.trim(), role: String(result.role).toLowerCase() };
